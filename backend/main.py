@@ -1,5 +1,6 @@
 import requests
 from fastapi import FastAPI, Depends, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from datetime import datetime, date
 
@@ -9,6 +10,15 @@ import models
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="NBP Currency API")
+
+# Odblokowanie komunikacji z przeglądarki (CORS)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"], # Zezwala na połączenia z dowolnego źródła (w tym z localhost:4200)
+    allow_credentials=True,
+    allow_methods=["*"], # Zezwala na wszystkie metody (GET, POST itd.)
+    allow_headers=["*"],
+)
 
 def get_db():
     db = SessionLocal()
