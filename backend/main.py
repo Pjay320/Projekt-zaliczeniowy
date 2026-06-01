@@ -1,17 +1,15 @@
 import requests
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
-from datetime import datetime
+from datetime import datetime, date
 
 from database import engine, Base, SessionLocal
 import models
 
-# Tworzy tabele w bazie przy starcie
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="NBP Currency API")
 
-# Funkcja pomocnicza: otwiera sesję bazy danych na czas trwania zapytania
 def get_db():
     db = SessionLocal()
     try:
@@ -25,7 +23,6 @@ def read_root():
 
 @app.post("/currencies/fetch")
 def fetch_currencies(db: Session = Depends(get_db)):
-    # 1. Pobranie danych z API NBP (Tabela A - średnie kursy walut obcych)
     nbp_url = "http://api.nbp.pl/api/exchangerates/tables/A?format=json"
     response = requests.get(nbp_url)
     
@@ -36,19 +33,15 @@ def fetch_currencies(db: Session = Depends(get_db)):
     rates = data.get("rates", [])
     date_str = data.get("effectiveDate")
     
-    # Zamiana daty z tekstu na obiekt daty w Pythonie
     record_date = datetime.strptime(date_str, "%Y-%m-%d").date()
 
-    # 2. Zapis do bazy danych
     added_count = 0
     for rate in rates:
-        # Sprawdzamy, czy ten kurs dla tej daty już istnieje
         exists = db.query(models.CurrencyRate).filter(
             models.CurrencyRate.currency_code == rate["code"],
             models.CurrencyRate.date == record_date
         ).first()
         
-        # Jeśli nie istnieje, dodajemy nowy wiersz do bazy
         if not exists:
             new_rate = models.CurrencyRate(
                 currency_code=rate["code"],
@@ -59,6 +52,16 @@ def fetch_currencies(db: Session = Depends(get_db)):
             db.add(new_rate)
             added_count += 1
             
-    db.commit() # Zatwierdzenie zmian w bazie
+    db.commit()
     
     return {"status": "success", "added": added_count, "date": date_str}
+
+@app.get("/currencies")
+def get_all_currencies(db: Session = Depends(get_db)):
+    rates = db.query(models.CurrencyRate).all()
+    return rates
+
+@app.get("/currencies/{query_date}")
+def get_currencies_by_date(query_date: date, db: Session = Depends(get_db)):
+    rates = db.query(models.CurrencyRate).filter(models.CurrencyRate.date == query_date).all()
+    return rates
