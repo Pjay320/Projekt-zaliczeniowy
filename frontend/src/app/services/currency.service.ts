@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { CurrencyRate } from '../models/currency.model';
 
@@ -7,23 +7,23 @@ import { CurrencyRate } from '../models/currency.model';
   providedIn: 'root'
 })
 export class CurrencyService {
-  // Adres Twojego backendu FastAPI
   private apiUrl = 'http://localhost:8000/currencies';
 
   constructor(private http: HttpClient) { }
 
-  // 1. Endpoint do pobierania nowych danych z NBP i zapisu w bazie
-  fetchFromNbp(): Observable<any> {
-    return this.http.post(`${this.apiUrl}/fetch`, {});
+  fetchRange(start: string, end: string): Observable<any> {
+    let params = new HttpParams().set('start_date', start).set('end_date', end);
+    return this.http.post(`${this.apiUrl}/fetch/range`, {}, { params: params });
   }
 
-  // 2. Endpoint do pobierania wszystkich walut z bazy
-  getAllCurrencies(): Observable<CurrencyRate[]> {
-    return this.http.get<CurrencyRate[]>(this.apiUrl);
+  getStats(start: string, end: string): Observable<any[]> {
+    let params = new HttpParams().set('start_date', start).set('end_date', end);
+    return this.http.get<any[]>(`${this.apiUrl}/stats`, { params: params });
   }
 
-  // 3. Endpoint do pobierania walut z konkretnego dnia
-  getCurrenciesByDate(date: string): Observable<CurrencyRate[]> {
-    return this.http.get<CurrencyRate[]>(`${this.apiUrl}/${date}`);
+  // ZMODYFIKOWANO: Wysyłamy zakres dat dla surowych danych
+  getRawRange(start: string, end: string): Observable<CurrencyRate[]> {
+    let params = new HttpParams().set('start_date', start).set('end_date', end);
+    return this.http.get<CurrencyRate[]>(this.apiUrl, { params: params });
   }
 }

@@ -1,40 +1,85 @@
 <div class="container">
-  <h1>Kursy Walut NBP </h1>
+  <h1>Dashboard Kursów NBP</h1>
 
-  <div class="actions-panel">
-    <button class="btn-primary" (click)="fetchFromNbp()" [disabled]="isLoading">
-       Pobierz najnowsze kursy z NBP
-    </button>
+  <div class="control-panel actions-panel">
+    <div style="margin-bottom: 15px;">
+      <select [(ngModel)]="mode" (change)="resetInputs()" style="padding: 8px; border-radius: 4px;">
+        <option value="day">Konkretny Dzień</option>
+        <option value="month">Miesiąc</option>
+        <option value="quarter">Kwartał</option>
+        <option value="year">Rok</option>
+        <option value="range">Własny Zakres</option>
+      </select>
+
+      <input type="number" *ngIf="mode !== 'range' && mode !== 'day'" [(ngModel)]="year" placeholder="Rok" style="padding: 8px; margin-left: 5px; width: 80px;">
+      
+      <select *ngIf="mode === 'quarter'" [(ngModel)]="quarter" style="padding: 8px; margin-left: 5px;">
+        <option value="1">I Kwartał</option><option value="2">II Kwartał</option>
+        <option value="3">III Kwartał</option><option value="4">IV Kwartał</option>
+      </select>
+
+      <select *ngIf="mode === 'month'" [(ngModel)]="month" style="padding: 8px; margin-left: 5px;">
+        <option value="01">Styczeń</option><option value="02">Luty</option><option value="03">Marzec</option>
+        <option value="04">Kwiecień</option><option value="05">Maj</option><option value="06">Czerwiec</option>
+        <option value="07">Lipiec</option><option value="08">Sierpień</option><option value="09">Wrzesień</option>
+        <option value="10">Październik</option><option value="11">Listopad</option><option value="12">Grudzień</option>
+      </select>
+
+      <input type="date" *ngIf="mode === 'day'" [(ngModel)]="startDate" style="margin-left: 5px;">
+      
+      <span *ngIf="mode === 'range'" style="margin-left: 5px;">
+        <input type="date" [(ngModel)]="startDate"> do <input type="date" [(ngModel)]="endDate">
+      </span>
+    </div>
+
+    <div>
+      <button class="btn-primary" (click)="prepareAndLoad()">1. Pokaż z bazy</button>
+      <button class="btn-secondary" (click)="downloadData()">2. Pobierz z NBP i pokaż</button>
+    </div>
+    
+    <p *ngIf="message" class="message-alert" style="margin-top: 15px;">{{ message }}</p>
   </div>
 
-  <div class="filter-panel">
-    <label for="dateFilter">Wybierz datę (Dzień/Miesiąc/Rok): </label>
-    <input type="date" id="dateFilter" [(ngModel)]="selectedDate">
-    <button class="btn-secondary" (click)="filterByDate()">Szukaj</button>
-    <button class="btn-secondary" (click)="selectedDate = ''; filterByDate()">Pokaż wszystkie</button>
-  </div>
-
-  <p *ngIf="message" class="message-alert">{{ message }}</p>
-  <p *ngIf="isLoading" class="loading"> Przetwarzanie...</p>
-
-  <table *ngIf="currencies.length > 0">
+  <h3>Średnie kursy w okresie:</h3>
+  <table border="1">
     <thead>
       <tr>
-        <th>Kod waluty</th>
+        <th>Kod</th>
         <th>Nazwa</th>
-        <th>Średni kurs (PLN)</th>
-        <th>Data publikacji</th>
+        <th>Średnia</th>
+        <th>Okres</th>
       </tr>
     </thead>
     <tbody>
-      <tr *ngFor="let rate of currencies">
-        <td><strong>{{ rate.currency_code }}</strong></td>
-        <td>{{ rate.currency_name }}</td>
-        <td>{{ rate.average_rate }} zł</td>
-        <td>{{ rate.date }}</td>
+      <tr *ngFor="let s of stats">
+        <td>{{ s.code }}</td>
+        <td>{{ s.name }}</td>
+        <td>{{ s.avg }}</td>
+        <td><strong>{{ startDate }}</strong> do <strong>{{ endDate }}</strong></td>
       </tr>
     </tbody>
   </table>
 
-  <p *ngIf="currencies.length === 0 && !isLoading" class="loading">Brak danych w bazie. Kliknij przycisk pobierania powyżej.</p>
+  <div *ngIf="stats.length === 0 && !isLoading && hasSearched" style="padding: 20px; color: #856404; background-color: #fff3cd; border: 1px solid #ffeeba; margin-top: 10px; border-radius: 4px;">
+    Baza danych jest pusta dla tego okresu. Kliknij <strong>"Pobierz z NBP i pokaż"</strong> powyżej.
+  </div>
+
+  <div style="margin-top: 20px;" *ngIf="stats.length > 0">
+    <button (click)="showRaw = !showRaw" style="margin-left: 0;">
+      {{ showRaw ? 'Ukryj surowe dane' : 'Pokaż szczegóły dzień po dniu' }}
+    </button>
+    
+    <div *ngIf="showRaw" style="margin-top: 10px;">
+      <table>
+        <thead><tr><th>Kod</th><th>Kurs</th><th>Data publikacji NBP</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let r of currencies">
+            <td><strong>{{ r.currency_code }}</strong></td>
+            <td>{{ r.average_rate }} zł</td>
+            <td>{{ r.date }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>
