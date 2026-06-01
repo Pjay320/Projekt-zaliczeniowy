@@ -17,9 +17,20 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - ./backend:/app 
+      - ./backend:/app
     depends_on:
       - db
+
+  frontend:
+    build: ./frontend
+    container_name: nbp_frontend
+    ports:
+      - "4200:4200"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules 
+    depends_on:
+      - backend
 
 volumes:
   postgres_data:
