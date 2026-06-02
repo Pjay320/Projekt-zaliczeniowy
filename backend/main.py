@@ -76,7 +76,7 @@ def get_stats(start_date: str, end_date: str, db: Session = Depends(get_db)):
         print(f"Błąd bazy danych: {e}") 
         raise HTTPException(status_code=400, detail="Błędny zakres dat lub brak danych")
 
-# ZMODYFIKOWANO: Endpoint teraz filtruje po datach i sortuje malejąco!
+
 @app.get("/currencies")
 def get_all_currencies(start_date: str = None, end_date: str = None, db: Session = Depends(get_db)):
     query = db.query(models.CurrencyRate)

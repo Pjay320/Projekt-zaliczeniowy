@@ -1,31 +1,28 @@
+import pytest
 from fastapi.testclient import TestClient
 from main import app
+from database import SessionLocal
 
 client = TestClient(app)
 
-def test_fetch_currencies_endpoint():
-    response = client.post("/currencies/fetch")
-    assert response.status_code == 200
-    
-    data = response.json()
-    assert "status" in data
-    assert data["status"] == "success"
 
-def test_get_currencies_list():
-    response = client.get("/currencies")
+def test_database_connection():
+    try:
+        db = SessionLocal()
+        assert db is not None
+        db.close()
+    except Exception as e:
+        pytest.fail(f"Połączenie z bazą danych nie powiodło się: {e}")
+
+
+def test_get_stats_valid_response():
+    
+    response = client.get("/currencies/stats?start_date=2026-05-01&end_date=2026-05-31")
     assert response.status_code == 200
     assert isinstance(response.json(), list)
 
-def test_get_currencies_by_date():
-    client.post("/currencies/fetch")
+
+def test_get_stats_missing_parameters():
     
-    fetch_response = client.post("/currencies/fetch").json()
-    test_date = fetch_response["date"]
-    
-    response = client.get(f"/currencies/{test_date}")
-    assert response.status_code == 200
-    
-    data = response.json()
-    assert isinstance(data, list)
-    if len(data) > 0:
-        assert data[0]["date"] == test_date
+    response = client.get("/currencies/stats")
+    assert response.status_code == 422

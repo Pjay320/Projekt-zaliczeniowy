@@ -21,7 +21,7 @@ export class CurrencyService {
     return this.http.get<any[]>(`${this.apiUrl}/stats`, { params: params });
   }
 
-  // ZMODYFIKOWANO: Wysyłamy zakres dat dla surowych danych
+  
   getRawRange(start: string, end: string): Observable<CurrencyRate[]> {
     let params = new HttpParams().set('start_date', start).set('end_date', end);
     return this.http.get<CurrencyRate[]>(this.apiUrl, { params: params });

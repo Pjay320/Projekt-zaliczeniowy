@@ -24,7 +24,7 @@ export class App implements OnInit {
   
   isLoading: boolean = false;
   showRaw: boolean = false;
-  hasSearched: boolean = false; // Zapobiega pokazywaniu "Brak danych" przed pierwszym wyszukiwaniem
+  hasSearched: boolean = false; 
   message: string = ''; 
 
   constructor(
