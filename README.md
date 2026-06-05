@@ -65,19 +65,19 @@ Projekt posiada 100% pokrycia dla wymaganych ścieżek testowych.
 1. Testy Backendu (Pytest)
 Testy weryfikujące połączenie z bazą danych oraz poprawność endpointów API. Uruchamiane bezpośrednio wewnątrz działającego kontenera Dockera.
 
-# Upewnij się, że kontenery są uruchomione, a następnie wpisz:
+Upewnij się, że kontenery są uruchomione, a następnie wpisz:
 docker exec -it nbp_backend pytest
 2. Testy Frontendu (Jasmine/Karma)
 Testy weryfikujące logikę komponentów Angulara, renderowanie tabeli oraz wstrzykiwanie zależności. Wymagają lokalnego środowiska Node.js.
 
 
-# Wejdź do folderu frontendu
+Wejdź do folderu frontendu
 cd frontend
 
-# Pobierz paczki (tylko za pierwszym razem)
+Pobierz paczki (tylko za pierwszym razem)
 npm install
 
-# Uruchom testy z wykorzystaniem lokalnego Angular CLI
+Uruchom testy z wykorzystaniem lokalnego Angular CLI
 npx ng test
 
 Autor
