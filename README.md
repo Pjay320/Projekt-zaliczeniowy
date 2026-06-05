@@ -62,11 +62,13 @@ docker-compose down
 Uruchamianie testów
 Projekt posiada 100% pokrycia dla wymaganych ścieżek testowych.
 
+
 1. Testy Backendu (Pytest)
 Testy weryfikujące połączenie z bazą danych oraz poprawność endpointów API. Uruchamiane bezpośrednio wewnątrz działającego kontenera Dockera.
 
 Upewnij się, że kontenery są uruchomione, a następnie wpisz:
 docker exec -it nbp_backend pytest
+
 2. Testy Frontendu (Jasmine/Karma)
 Testy weryfikujące logikę komponentów Angulara, renderowanie tabeli oraz wstrzykiwanie zależności. Wymagają lokalnego środowiska Node.js.
 
